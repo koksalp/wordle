@@ -128,6 +128,6 @@ export function random()
     const letters_list = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"]; 
     const random_letter = letters_list[Math.floor(Math.random() * letters_list.length)]; 
     const random_word = words[random_letter][Math.floor(Math.random() * words[random_letter].length)];  
-    console.log("word: ", random_word); 
+    // console.log("word: ", random_word); 
     return random_word; 
 } 
