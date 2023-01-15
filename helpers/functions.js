@@ -136,7 +136,7 @@ async function getEnglishWord()
 
 function getTurkishWord()
 { 
-    const lettersList = constants.languages[gameObject.language].alphabet; 
+    const lettersList = [...constants.languages[gameObject.language].alphabet]; 
     lettersList.splice(lettersList.indexOf("Ğ"), 1); 
     const randomLetter = lettersList[Math.floor(Math.random() * lettersList.length)]; 
     const randomWord = trWords[randomLetter][Math.floor(Math.random() * trWords[randomLetter].length)];  
@@ -277,9 +277,9 @@ function createKeyboard()
 {
     const keyboardDiv = document.createElement("div"); 
     keyboardDiv.id = "keyboard"; 
-
+    const keyboardRowLen = gameObject.language === "tr" ? 8 : 7; 
     gameObject.letters.forEach((letter, index)=> { 
-        if (index !== 0 && index % 7 === 0) {
+        if (index !== 0 && index % keyboardRowLen === 0) { 
             keyboardDiv.appendChild(document.createElement("br")); 
         }
         const key = document.createElement("div"); 
