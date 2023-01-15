@@ -1,6 +1,5 @@
 import gameObject from "./helpers/constants.js";
 import * as functions from "./helpers/functions.js";
-import * as elements from "./helpers/elements.js";
 import * as controllers from "./helpers/controllers.js";
 
 document.addEventListener("keydown", async function(event) { 
@@ -14,11 +13,9 @@ await functions.begin();
 
 const enterButton = document.querySelector("#enter");
 const deleteButton = document.querySelector("#delete");
-const rows = document.querySelectorAll(".row"); 
 const keys = document.querySelectorAll(".letter"); 
 
 console.log(gameObject.word); 
-console.log(gameObject.letters); 
 
 keys.forEach(key => {
     key.onclick = () => { 
@@ -28,6 +25,13 @@ keys.forEach(key => {
         } 
     }
 });   
+
+enterButton.onclick = () => {
+    if (!gameObject.isGameOver)
+    {
+        controllers.handleEnterPress(); 
+    }
+} 
 
 deleteButton.onclick = () => {
     if (!gameObject.isGameOver)
@@ -52,8 +56,8 @@ document.addEventListener("keydown", async function(event) {
         { 
             if (functions.isLetterValid(key)) 
             {
-                controllers.fill(key.toUpperCase()); 
+                controllers.fill(key); 
             } 
-        }
-    }
+        } 
+    } 
 }); 

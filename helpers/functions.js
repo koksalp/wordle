@@ -1,6 +1,7 @@
 import gameObject, * as constants from "./constants.js"; 
 import {getRandomEnglishWord, doesThisEnglishWordExist} from "./api/functions.js"; 
 import * as elements from "./elements.js";  
+import trWords from "./tr-words.js";  
 
 export function createLanguageModal() {
     const backdrop = document.createElement("div"); 
@@ -134,10 +135,15 @@ async function getEnglishWord()
 } 
 
 function getTurkishWord()
-{
-    return "ABECE"; 
+{ 
+    const lettersList = constants.languages[gameObject.language].alphabet; 
+    lettersList.splice(lettersList.indexOf("Ğ"), 1); 
+    const randomLetter = lettersList[Math.floor(Math.random() * lettersList.length)]; 
+    const randomWord = trWords[randomLetter][Math.floor(Math.random() * trWords[randomLetter].length)];  
+    
+    return randomWord; 
 } 
-
+      
 function capitalizeFirstLetter(string) 
 {
     return string.charAt(0).toUpperCase() + string.slice(1); 
@@ -272,12 +278,17 @@ function createKeyboard()
     const keyboardDiv = document.createElement("div"); 
     keyboardDiv.id = "keyboard"; 
 
-    gameObject.letters.forEach(letter=> {
+    gameObject.letters.forEach((letter, index)=> { 
+        if (index !== 0 && index % 7 === 0) {
+            keyboardDiv.appendChild(document.createElement("br")); 
+        }
         const key = document.createElement("div"); 
         key.className = "key letter"; 
         key.textContent = letter; 
         keyboardDiv.appendChild(key); 
     }); 
+
+    keyboardDiv.appendChild(document.createElement("br")); 
 
     const enterKey = document.createElement("div"); 
     enterKey.classList.add("key"); 
@@ -305,7 +316,7 @@ function handleGameDisplay()
 async function doesWordExist(word) 
 { 
     if (gameObject.language === "en") 
-    {
+    { 
         const response = await doesThisEnglishWordExist(word); 
         
         // response might be null indicating some error 
@@ -313,8 +324,17 @@ async function doesWordExist(word)
     } 
     else if (gameObject.language === "tr") 
     {
-        // check 
-        return true; 
+        if (word)
+        {
+            word = word.toLocaleUpperCase(); 
+            const firstLetter = word[0];   
+            for (let i=0; i<trWords[firstLetter].length; i++)
+            { 
+                if (trWords[firstLetter][i] === word) 
+                return true; 
+            }
+        } 
+        return false; 
     }
 } 
 
@@ -333,14 +353,14 @@ export function isLetterValid(letter)
         {
             return false; 
         } 
-    
+        
         return gameObject.letters.includes(letter.toUpperCase()); 
     } 
     return; 
 } 
 
 export async function check() 
-{
+{ 
     const row = gameObject.current.row; 
     
     const divs = row.querySelectorAll(".word-div"); 
@@ -396,9 +416,10 @@ export async function check()
     }
     else 
     { 
-        alert(`${word} does not exist`); 
-    }
-    
+        const message = constants.languages[gameObject.language].wordNotFoundMessage; 
+        createAlert(message); 
+        tiltRow(); 
+    } 
 }
 
 export function colorKeyboard(letter, color)
@@ -439,6 +460,107 @@ function deleteMessage()
 {
     elements.messageElement.innerHTML = ""; 
 }
+
+export function tiltRow() 
+{ 
+    const row = gameObject.current.row; 
+    row.classList.add("tilt"); 
+    row.style.animationPlayState = "running"; 
+
+    row.addEventListener("animationend", function() {
+        this.classList.remove("tilt"); 
+    }); 
+} 
+
+export function createAlert(message) 
+{ 
+    if (message === undefined)
+    {
+        return; 
+    } 
+    
+    const alertDiv = document.createElement("div"); 
+    alertDiv.id = "alert-div"; 
+    alertDiv.textContent = message; 
+    
+    console.log("creating..."); 
+    elements.mainDiv.appendChild(alertDiv); 
+    
+    alertDiv.style.animationPlayState = "running"; 
+    alertDiv.addEventListener("animationend", function () { 
+        this.remove(); 
+    }); 
+} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,18 @@
 import gameObject, * as constants from "./constants.js"; 
-import {check} from "./functions.js"; 
+import {check, createAlert, tiltRow } from "./functions.js"; 
 export function fill(letter) 
-{
+{ 
+    if (letter=== "i")
+    {
+        if (gameObject.language === "tr") {
+            letter= letter.toLocaleUpperCase(); 
+        } else {
+            letter= letter.toUpperCase(); 
+        } 
+    } else {
+        letter= letter.toUpperCase(); 
+    }
+
     const row = gameObject.current.row; 
     
     if (!row)
@@ -68,46 +79,27 @@ export function isAllRowsFull()
     });
     return full; 
 }
-/* 
-export function handleEnterPress()
-{ 
-    if (gameObject.current.index < constants.attempts) 
-    {
-        if (isAllRowsFull())
-        {
-            check(); 
-            if (gameObject.didUserWin)
-            { 
-                winner();  
-            }
-        } 
-        else 
-        {
-            alert("All rows must be full."); 
-        } 
-        if (gameObject.current.index === constants.attempts) 
-        {
-            if (gameObject.didUserWin)
-            { 
-                winner(); 
-            }
-            else 
-            {
-                document.querySelector("#answer").innerHTML = `GAME OVER! The answer was: ${gameObject.word}`;
-                document.querySelector("hr").style.marginBottom = "0px";   
-            }
-        }
-    }
-} */ 
 
 export function handleEnterPress()
 { 
     if (isAllRowsFull())
-    {
-        check(); 
+    { 
+        if (gameObject.language === "tr") {
+            check(); 
+        } else if ((gameObject.language === "en" && gameObject.isAlertAllowed)) { 
+            gameObject.isAlertAllowed = false; 
+            setTimeout(() => {
+                gameObject.isAlertAllowed = true; 
+            }, 2000); 
+
+            check(); 
+        }
     } 
     else 
     {
-        alert("All rows must be full."); 
+        //alert("All rows must be full."); 
+        const message = constants.languages[gameObject.language].emptyRowMessage; 
+        createAlert(message); 
+        tiltRow(); 
     } 
 } 
