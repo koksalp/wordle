@@ -20,7 +20,7 @@ export function fill(letter) {
     return;
   }
 
-  const divs = row.querySelectorAll(".word-div"); 
+  const divs = row.querySelectorAll(".word-div");
   let emptyDiv;
 
   divs.forEach((div) => {
