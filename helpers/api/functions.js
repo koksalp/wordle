@@ -27,6 +27,5 @@ export async function doesThisEnglishWordExist(word) {
   } catch (error) {
     return null;
   }
-
   return wordInfo.valid;
 }

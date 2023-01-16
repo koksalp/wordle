@@ -1,5 +1,5 @@
 import gameObject, * as constants from "./constants.js";
-import { check, createAlert, tiltRow } from "./functions.js";
+import { check, createAlert, shakeRow } from "./functions.js";
 
 // fill divs in rows whenever user types something valid
 export function fill(letter) {
@@ -89,6 +89,6 @@ export function handleEnterPress() {
   } else {
     const message = constants.languages[gameObject.language].emptyRowMessage;
     createAlert(message);
-    tiltRow();
+    shakeRow();
   }
 }

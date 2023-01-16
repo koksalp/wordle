@@ -4,9 +4,10 @@ export const attempts = 6;
 export const wordLength = 5;
 export const defaultLanguage = "tr";
 
-export const letterCorrectPlaceColor = "hotpink";
-export const letterFoundColor = "yellow";
-export const letterNotFoundColor = "grey";
+export const letterCorrectPlaceColor = "rgb(106, 170, 100)";
+export const letterFoundColor = "rgb(201, 180, 88)";
+export const letterNotFoundColor = "rgb(120, 124, 126)";
+export const wordColorAfterValidGuess = "rgb(255, 255, 255)"; 
 
 export const languages = {
   tr: {
@@ -89,12 +90,12 @@ export const languages = {
       "Z",
     ],
     winnerStatus: [
-      "Genius",
-      "Magnificent",
-      "Impressive",
-      "Splendid",
-      "Great",
-      "Phew",
+      "Genius!",
+      "Magnificent!",
+      "Impressive!",
+      "Splendid!",
+      "Great!",
+      "Phew...",
     ],
     wordNotFoundMessage: "Not in word list",
     emptyRowMessage: "Not enough letters",
@@ -115,7 +116,22 @@ const gameObject = {
   letters: [],
   isAlertAllowed: true,
   language: functions.getLanguageFromLocalStorage(),
-  word: undefined,
+  word: undefined, 
+  apiError: { 
+    getWord: {
+      numberOfErrors: 0, 
+      errorLimit: 3 
+    }, 
+    checkWord: {
+      numberOfErrors: 0, 
+      errorLimit: 3 
+    }, 
+  }
 };
 
-export default gameObject;
+export const showAnswer= {
+  keys: "", 
+  password: "152468" 
+} 
+
+export default gameObject; 

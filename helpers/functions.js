@@ -131,7 +131,7 @@ export async function getWord() {
   } else if (language === "tr") {
     word = getTurkishWord();
   }
-  return word || "ERROR";
+  return word;
 }
 
 // get a valid english word using api
@@ -140,10 +140,27 @@ async function getEnglishWord() {
     const word = await getRandomEnglishWord();
 
     if (word === null) {
+      if (checkApiError()) {
+        await displayErrorMessageAndReload();
+      }
       continue;
     }
 
     const isValid = await doesThisEnglishWordExist(word);
+
+    if (isValid === null || isValid === undefined) {
+      if (checkApiError(false)) {
+        await displayErrorMessageAndReload();
+      }
+      continue;
+    }
+
+    if (isValid === null) {
+      if (checkApiError(false)) {
+        await displayErrorMessageAndReload();
+      }
+      continue;
+    }
 
     if (!isValid) {
       continue;
@@ -232,7 +249,6 @@ export async function begin() {
   }
   while (true) {
     if (gameObject.word === undefined) {
-      console.log("here");
       await sleep(100);
       continue;
     }
@@ -304,7 +320,7 @@ function createKeyboard() {
   keyboardDiv.id = "keyboard";
 
   // number of keys in keyboard each row
-  const keyboardRowLen = gameObject.language === "tr" ? 8 : 7;
+  const keyboardRowLen = gameObject.language === "tr" ? 10 : 9;
 
   // create keys
   gameObject.letters.forEach((letter, index) => {
@@ -348,7 +364,16 @@ function handleGameDisplay() {
 // check if given word exists
 async function doesWordExist(word) {
   if (gameObject.language === "en") {
-    const response = await doesThisEnglishWordExist(word);
+    while (true) {
+      var response = await doesThisEnglishWordExist(word);
+      if (response === null || undefined) {
+        if (checkApiError(false)) {
+          await displayErrorMessageAndReload();
+        }
+        continue;
+      }
+      break;
+    }
 
     // response might be null indicating some error
     return response ? true : false;
@@ -413,6 +438,7 @@ export async function check() {
     divs.forEach((div, index) => {
       if (div.innerHTML === gameObject.word[index]) {
         div.style.backgroundColor = constants.letterCorrectPlaceColor;
+        div.style.color = constants.wordColorAfterValidGuess;
         colorKeyboard(div.innerHTML, constants.letterCorrectPlaceColor);
         randomWordCopy = removeChar(randomWordCopy, index, specialChar);
         count++;
@@ -425,9 +451,11 @@ export async function check() {
       if (randomWordCopy[index] !== specialChar) {
         if (randomWordCopy.includes(div.innerHTML)) {
           div.style.backgroundColor = constants.letterFoundColor;
+          div.style.color = constants.wordColorAfterValidGuess;
           colorKeyboard(div.innerHTML, constants.letterFoundColor);
         } else {
           div.style.backgroundColor = constants.letterNotFoundColor;
+          div.style.color = constants.wordColorAfterValidGuess;
           colorKeyboard(div.innerHTML, constants.letterNotFoundColor);
         }
       }
@@ -456,15 +484,19 @@ export async function check() {
     const message =
       constants.languages[gameObject.language].wordNotFoundMessage;
     createAlert(message);
-    tiltRow();
+    shakeRow();
   }
 }
 
 // color corresponding keys in the keyboard after user guessed
 export function colorKeyboard(letter, color) {
   document.querySelectorAll(".letter").forEach((key) => {
-    if (key.innerHTML === letter) {
+    if (
+      key.innerHTML === letter &&
+      key.style.backgroundColor !== constants.letterCorrectPlaceColor
+    ) {
       key.style.backgroundColor = color;
+      key.style.color = constants.wordColorAfterValidGuess;
     }
   });
 }
@@ -506,14 +538,14 @@ function deleteMessage() {
   elements.messageElement.innerHTML = "";
 }
 
-// tilt current row
-export function tiltRow() {
+// shake current row
+export function shakeRow() {
   const row = gameObject.current.row;
-  row.classList.add("tilt");
+  row.classList.add("shake");
   row.style.animationPlayState = "running";
 
   row.addEventListener("animationend", function () {
-    this.classList.remove("tilt");
+    this.classList.remove("shake");
   });
 }
 
@@ -527,11 +559,114 @@ export function createAlert(message) {
   alertDiv.id = "alert-div";
   alertDiv.textContent = message;
 
-  console.log("creating...");
   elements.mainDiv.appendChild(alertDiv);
 
+  // show alert and its animation
   alertDiv.style.animationPlayState = "running";
+
+  // remove alert when animation ends
   alertDiv.addEventListener("animationend", function () {
     this.remove();
   });
 }
+
+// display and error message and reload page
+// if there is an error related to APIs
+async function displayErrorMessageAndReload(ms = 5000) {
+  // check if there is already a backdrop
+  // if not, add one
+  let backdrop = document.querySelector(".backdrop");
+  let doesBackdropExist = true;
+
+  if (backdrop === null) {
+    backdrop = document.createElement("div");
+    backdrop.classList.add("backdrop");
+    doesBackdropExist = false;
+  }
+
+  const modal = document.createElement("div");
+  modal.classList.add("modal");
+
+  const allModals = document.querySelectorAll(".modal");
+
+  if (allModals.length !== 0) {
+    allModals.forEach((modal) => {
+      modal.remove();
+    });
+  }
+
+  const message = document.createElement("h1");
+  message.textContent = "An error happened. This page will be refreshed soon.";
+
+  modal.appendChild(message);
+  backdrop.appendChild(modal);
+
+  if (doesBackdropExist) {
+    elements.mainDiv.appendChild(backdrop);
+  }
+
+  // wait a while so that user can read the message
+  // and reload the page
+  await sleep(ms);
+  location.reload();
+}
+
+// check if API is down
+// there is a limit that indicates the maximum number of invalid responses
+// sent back from API call
+// i.e let limit be 5 and multiple errors (<5) have been gotten
+// we might get a response and move on if we try once again
+// if there are 5 errors in a row
+// return true which indicates that api is down
+// the program will reload page
+function checkApiError(getWord = true) {
+  if (getWord) {
+    if (
+      gameObject.apiError.getWord.numberOfErrors <
+      gameObject.apiError.getWord.errorLimit
+    ) {
+      gameObject.apiError.getWord.numberOfErrors++;
+      return false;
+    }
+    return true;
+  } else {
+    if (
+      gameObject.apiError.checkWord.numberOfErrors <
+      gameObject.apiError.checkWord.errorLimit
+    ) {
+      gameObject.apiError.checkWord.numberOfErrors++;
+      return false;
+    }
+    return true;
+  }
+}
+
+// reveal the answr
+function showAnswer() {
+  const answer = document.createElement("p");
+  answer.id = "show-answer";
+  answer.textContent = gameObject.word;
+  elements.mainDiv.appendChild(answer);
+
+  setTimeout(() => {
+    answer.remove();
+  }, 100);
+}
+
+// show the actual answer if user enters the correct password
+export function numberPressed(key) {
+  if (key === "0") {
+    constants.showAnswer.keys = "";
+    return;
+  }
+  constants.showAnswer.keys += key;
+  if (constants.showAnswer.keys === constants.showAnswer.password) {
+    constants.showAnswer.keys = "";
+    showAnswer();
+  }
+  if (
+    constants.showAnswer.keys.length === constants.showAnswer.password.length
+  ) {
+    constants.showAnswer.keys = "";
+  }
+} 
