@@ -2,7 +2,11 @@ import * as functions from "./functions.js";
 
 export const attempts = 6; 
 export const wordLength = 5; 
-export const defaultLanguage = "tr"; 
+export const defaultLanguage = "tr";                                                                                             
+
+export const letterCorrectPlaceColor = "hotpink"; 
+export const letterFoundColor = "yellow"; 
+export const letterNotFoundColor = "grey"; 
 
 export const languages = { 
     "tr": { 
@@ -41,13 +45,7 @@ const gameObject = {
     isAlertAllowed: true, 
     language: functions.getLanguageFromLocalStorage(), 
     word: undefined 
-};                                                                                             
-
-export const letterCorrectPlaceColor = "hotpink"; 
-export const letterFoundColor = "yellow"; 
-export const letterNotFoundColor = "grey"; 
-
-//export const random_word = functions.random(); 
+}; 
 
 export default gameObject; 
 

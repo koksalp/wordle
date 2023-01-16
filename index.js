@@ -2,6 +2,7 @@ import gameObject from "./helpers/constants.js";
 import * as functions from "./helpers/functions.js";
 import * as controllers from "./helpers/controllers.js";
 
+// let user dismiss language selection 
 document.addEventListener("keydown", async function(event) { 
     if (event.key === "Escape" && document.querySelector("#select-language-div") !== null) 
     {
@@ -9,14 +10,18 @@ document.addEventListener("keydown", async function(event) {
     } 
 }); 
 
+// begin game 
 await functions.begin(); 
 
+// get necessary elements 
+// they are declared here because they do not exist until begin function ends 
 const enterButton = document.querySelector("#enter");
 const deleteButton = document.querySelector("#delete");
 const keys = document.querySelectorAll(".letter"); 
 
 console.log(gameObject.word); 
 
+// let user type something using the keyboard created for the game 
 keys.forEach(key => {
     key.onclick = () => { 
         if (!gameObject.isGameOver && functions.isLetterValid(key.textContent)) 
@@ -25,14 +30,16 @@ keys.forEach(key => {
         } 
     }
 });   
-
+         
+// let user interact with enter button on the keyboard created for the game 
 enterButton.onclick = () => {
     if (!gameObject.isGameOver)
     {
         controllers.handleEnterPress(); 
     }
 } 
-
+    
+// let user interact with delete button on the keyboard created for the game 
 deleteButton.onclick = () => {
     if (!gameObject.isGameOver)
     {
@@ -40,6 +47,7 @@ deleteButton.onclick = () => {
     }
 } 
 
+// listen for keydown event 
 document.addEventListener("keydown", async function(event) { 
     if (!gameObject.isGameOver)
     { 
@@ -60,4 +68,4 @@ document.addEventListener("keydown", async function(event) {
             } 
         } 
     } 
-}); 
+});    
