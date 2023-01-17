@@ -1,6 +1,6 @@
 # WORDLE
 
-Visit https://wordle-az1x.onrender.com to play the game. 
+Visit https://wordle-az1x.onrender.com to play the gamezzzzz. 
 
 ## What is it? 
 
